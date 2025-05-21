@@ -1,39 +1,18 @@
-describe('Airalo API Authentication', () => {
-    let accessToken; 
-  
-    it('should successfully obtain an OAuth2 token', () => {
-      cy.request({
-        method: 'POST',
-        url: '/v2/token', 
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: {
-          grant_type: 'client_credentials',
-          client_id: Cypress.env('AIRALO_CLIENT_ID'), 
-          client_secret: Cypress.env('AIRALO_CLIENT_SECRET') 
-        },
-        form: true 
-      }).then((response) => {        
-        expect(response.status).to.eq(200); 
-        expect(response.body.data).to.have.property('access_token');
-        expect(response.body.data).to.have.property('token_type', 'Bearer');
-        expect(response.body.data).to.have.property('expires_in').and.be.a('number');    
-        accessToken = response.body.data.access_token;       
-        Cypress.env('AIRALO_ACCESS_TOKEN', accessToken);
-      });
+describe('Airalo Partner API', () => {
+    before(() => {
+      cy.getAiraloAccessToken(); 
     });
-
+  
     it('should successfully create a new order', () => {
-      expect(accessToken, 'Access Token should be available').to.not.be.null;
+      const currentAccessToken = Cypress.env('AIRALO_ACCESS_TOKEN');
+      expect(currentAccessToken, 'Access Token should be available').to.not.be.null;
   
       cy.request({
         method: 'POST',
         url: '/v2/orders', 
         headers: {
           'Accept': 'application/json',
-          'Authorization': `Bearer ${accessToken}` 
+          'Authorization': `Bearer ${currentAccessToken}` 
         },
         body: {
           quantity: '6',
@@ -52,7 +31,8 @@ describe('Airalo API Authentication', () => {
     });
 
     it('should successfully retrieve SIMs', () => {
-      expect(accessToken, 'Access Token should be available').to.not.be.null;
+      const currentAccessToken = Cypress.env('AIRALO_ACCESS_TOKEN');
+      expect(currentAccessToken, 'Access Token should be available').to.not.be.null;
       const queryParams = {
         limit: 10,
         page: 1,
@@ -65,7 +45,7 @@ describe('Airalo API Authentication', () => {
         url: '/v2/sims',
         headers: {
           'Accept': 'application/json',
-          'Authorization': `Bearer ${accessToken}`
+          'Authorization': `Bearer ${currentAccessToken}`
         },
         qs: queryParams 
       }).then((response) => {

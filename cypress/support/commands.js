@@ -1,25 +1,28 @@
-// ***********************************************
-// This example commands.js shows you how to
-// create various custom commands and overwrite
-// existing commands.
-//
-// For more comprehensive examples of custom
-// commands please read more here:
-// https://on.cypress.io/custom-commands
-// ***********************************************
-//
-//
-// -- This is a parent command --
-// Cypress.Commands.add('login', (email, password) => { ... })
-//
-//
-// -- This is a child command --
-// Cypress.Commands.add('drag', { prevSubject: 'element'}, (subject, options) => { ... })
-//
-//
-// -- This is a dual command --
-// Cypress.Commands.add('dismiss', { prevSubject: 'optional'}, (subject, options) => { ... })
-//
-//
-// -- This will overwrite an existing command --
-// Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
+
+Cypress.Commands.add('getAiraloAccessToken', () => {
+    const existingToken = Cypress.env('AIRALO_ACCESS_TOKEN'); 
+    if (existingToken) {
+      return cy.wrap(existingToken); 
+    } else {
+      return cy.request({
+        method: 'POST',
+        url: '/v2/token', 
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: {
+          grant_type: 'client_credentials',
+          client_id: Cypress.env('AIRALO_CLIENT_ID'),
+          client_secret: Cypress.env('AIRALO_CLIENT_SECRET')
+        },
+        form: true
+      }).then((response) => {
+        expect(response.status).to.eq(200);
+        const newToken = response.body.data.access_token;
+        Cypress.env('AIRALO_ACCESS_TOKEN', newToken); 
+        return cy.wrap(newToken); 
+      });
+    }
+  });
+  
