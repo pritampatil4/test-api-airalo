@@ -24,4 +24,31 @@ describe('Airalo API Authentication', () => {
         Cypress.env('AIRALO_ACCESS_TOKEN', accessToken);
       });
     });
+
+    it('should successfully create a new order', () => {
+      expect(accessToken, 'Access Token should be available').to.not.be.null;
+  
+      cy.request({
+        method: 'POST',
+        url: '/v2/orders', 
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${accessToken}` 
+        },
+        body: {
+          quantity: '6',
+          package_id: 'merhaba-7days-1gb', 
+          type: 'sim',      
+        },
+        form: true 
+      }).then((response) => {
+        expect(response.status).to.eq(200); 
+        expect(response.body).to.have.property('data');
+        expect(response.body.data.id).not.to.be.null;
+        expect(response.body.data.package_id).to.eq('merhaba-7days-1gb');
+        expect(response.body.data.sims).to.be.an('array');
+        expect(response.body.data.sims).to.have.length(6);
+      });
+    });
+  
   });
