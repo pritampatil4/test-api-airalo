@@ -50,5 +50,31 @@ describe('Airalo API Authentication', () => {
         expect(response.body.data.sims).to.have.length(6);
       });
     });
+
+    it('should successfully retrieve SIMs', () => {
+      expect(accessToken, 'Access Token should be available').to.not.be.null;
+      const queryParams = {
+        limit: 10,
+        page: 1,
+        include: 'order,order.status,order.user',
+       
+      };
+  
+      cy.request({
+        method: 'GET',
+        url: '/v2/sims',
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${accessToken}`
+        },
+        qs: queryParams 
+      }).then((response) => {
+        expect(response.status).to.eq(200); 
+        let responsJson = response.body;
+        cy.log("json response", JSON.stringify(responsJson));
+        expect(response.body).to.have.property('data').and.be.an('array');
+        expect(response.body.data.length).to.be.greaterThan(0);
+      });
+    });
   
   });
