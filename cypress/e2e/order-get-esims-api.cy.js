@@ -6,7 +6,6 @@ describe('Airalo Partner API', () => {
     it('should successfully create a new order', () => {
       const currentAccessToken = Cypress.env('AIRALO_ACCESS_TOKEN');
       expect(currentAccessToken, 'Access Token should be available').to.not.be.null;
-  
       cy.request({
         method: 'POST',
         url: '/v2/orders', 
@@ -36,10 +35,8 @@ describe('Airalo Partner API', () => {
       const queryParams = {
         limit: 10,
         page: 1,
-        include: 'order,order.status,order.user',
-       
-      };
-  
+        include: 'order,order.status,order.user',      
+      }; 
       cy.request({
         method: 'GET',
         url: '/v2/sims',
@@ -50,11 +47,8 @@ describe('Airalo Partner API', () => {
         qs: queryParams 
       }).then((response) => {
         expect(response.status).to.eq(200); 
-        let responsJson = response.body;
-        cy.log("json response", JSON.stringify(responsJson));
         expect(response.body).to.have.property('data').and.be.an('array');
         expect(response.body.data.length).to.be.greaterThan(0);
       });
     });
-  
   });
